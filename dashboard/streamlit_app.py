@@ -97,13 +97,22 @@ T = {
 
 @st.cache_data
 def load_data():
-    df1 = pd.read_csv('data/raw/plant_vase1.CSV');    df1['source'] = 'vase1_bunga'
-    df2 = pd.read_csv('data/raw/plant_vase1(2).CSV'); df2['source'] = 'vase1_bunga_2'
-    df3 = pd.read_csv('data/raw/plant_vase2.CSV');    df3['source'] = 'vase2_tanah'
-    df = pd.concat([df1, df2, df3], ignore_index=True)
-    df.rename(columns={'irrgation': 'irrigation'}, inplace=True)
-    df['datetime'] = pd.to_datetime(df[['year','month','day','hour','minute','second']])
-    df = df.sort_values(['source','datetime']).reset_index(drop=True)
+    import os
+    cleaned_path = 'outputs/cleaned_data.csv'
+
+    if os.path.exists(cleaned_path):
+        df = pd.read_csv(cleaned_path, parse_dates=['datetime'])
+        df = df.sort_values(['source', 'datetime']).reset_index(drop=True)
+    else:
+        st.sidebar.warning("cleaned_data.csv tidak ditemukan. Membaca dari raw CSV!")
+        df1 = pd.read_csv('data/raw/plant_vase1.CSV');    df1['source'] = 'vase1_bunga'
+        df2 = pd.read_csv('data/raw/plant_vase1(2).CSV'); df2['source'] = 'vase1_bunga_2'
+        df3 = pd.read_csv('data/raw/plant_vase2.CSV');    df3['source'] = 'vase2_tanah'
+        df = pd.concat([df1, df2, df3], ignore_index=True)
+        df.rename(columns={'irrgation': 'irrigation'}, inplace=True)
+        df['datetime'] = pd.to_datetime(df[['year','month','day','hour','minute','second']])
+        df = df.sort_values(['source', 'datetime']).reset_index(drop=True)
+
     return df
 
 df = load_data()
